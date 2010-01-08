@@ -40,6 +40,11 @@ class ScheduledItemManager(models.Manager):
     def available(self, model=None):
         return self.get_query_set().available(model)
 
+    def get_available_or_none(self, model=None):
+        available = list(self.available(model).return_related()[0:1])
+        item = (available+[None])[0]
+        return getattr(item, 'content_object', None)
+
 class ScheduledItem(models.Model):
     published = models.DateTimeField()
     object_id = models.PositiveIntegerField()

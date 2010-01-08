@@ -122,3 +122,32 @@ class TestOfSchedule(TestCase):
         available = ScheduledItem.objects.available(Post).return_related()
         self.assertEqual(1, available.count())
 
+    def test_get_available_or_none_returns_none_if_none_are_available(self):
+        [a] = random_posts(1)
+        [b] = random_articles(1)
+        now = datetime.now()
+        ScheduledItem.objects.create(
+            published=now,
+            content_object=a,
+        )
+        self.assertEqual(ScheduledItem.objects.get_available_or_none(b.__class__), None)
+
+    def test_get_available_or_none_returns_item_if_available(self):
+        [a] = random_posts(1)
+        now = datetime.now()
+        ScheduledItem.objects.create(
+            published=now,
+            content_object=a,
+        )
+        result = ScheduledItem.objects.get_available_or_none(a.__class__)
+        self.assertEqual(result.__class__, a.__class__)
+        self.assertEqual(result.pk, a.pk)
+
+    def test_model_unicode(self):
+        [a] = random_posts(1)
+        now = datetime.now()
+        s = ScheduledItem.objects.create(
+            published=now,
+            content_object=a,
+        )
+        self.assertEqual("%s"%now, s.__unicode__()) 
